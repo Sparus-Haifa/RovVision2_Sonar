@@ -67,6 +67,7 @@ async def display_feeds():
                 if ret[0] == zmq_topics.topic_stereo_camera:
                     frame_cnt, shape, ts, camState, hasHighRes = pickle.loads(ret[1])
                     camera_img = np.frombuffer(ret[-2], 'uint8').reshape((shape[0]//2, shape[1]//2, 3)).copy()
+                    camera_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
                 
                 # Process sonar feed
                 elif ret[0] == zmq_topics.topic_sonar:
