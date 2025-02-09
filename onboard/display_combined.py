@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+import os
+os.environ['DISPLAY'] = ':0'
+
 import numpy as np
 import zmq
 import sys
@@ -17,7 +20,7 @@ import config
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='ROV Combined Camera and Sonar Display')
-parser.add_argument('--windowless', action='store_true', help='Run in windowless mode (no window decorations)')
+parser.add_argument('--windowed', action='store_true', help='Run in windowed mode (with window decorations)')
 parser.add_argument('--width', type=int, default=1080, help='Display width (default: 1080 - portrait mode)')
 parser.add_argument('--height', type=int, default=1920, help='Display height (default: 1920 - portrait mode)')
 parser.add_argument('--cam-ratio', type=float, default=0.6, help='Ratio of screen height for camera (0.0-1.0, default: 0.6)')
@@ -46,7 +49,7 @@ async def display_feeds():
     
     # Create window
     window_name = 'Combined Feed'
-    if args.windowless:
+    if not args.windowed:  # Windowless is now the default
         cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
         cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     else:
