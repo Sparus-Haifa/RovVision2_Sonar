@@ -43,3 +43,31 @@ dill
 idocker build ../docker/ -t rovision
 #######################
 
+
+
+resolve usb ethernet issue:
+
+ 2047  sudo nm-connection-editor 
+ 2048  nmcli connection show
+ 2049  sudo nmcli connection modify d0f82096-a5b2-378d-87c8-c3212879ec36 connection.interface-name eth0
+ 2050  sudo nmcli connection up d0f82096-a5b2-378d-87c8-c3212879ec36
+ 2051  sudo nmcli connection down d0f82096-a5b2-378d-87c8-c3212879ec36
+ 2052  sudo nmcli connection modify d0f82096-a5b2-378d-87c8-c3212879ec36 connection.interface-name eth0
+ 2053  sudo nmcli connection up d0f82096-a5b2-378d-87c8-c3212879ec36
+ 2054  nmcli connection show
+ 2055  ping 192.168.2.12
+
+sudo nmcli connection modify d0f82096-a5b2-378d-87c8-c3212879ec36 connection.interface-name usb0 connection.autoconnect yes
+
+sudo nmcli connection modify d0f82096-a5b2-378d-87c8-c3212879ec36 connection.interface-name usb0 connection.autoconnect yes
+sudo nmcli connection modify d0f82096-a5b2-378d-87c8-c3212879ec36 connection.persist yes
+sudo nmcli connection up d0f82096-a5b2-378d-87c8-c3212879ec36
+
+sudo nmcli connection modify d0f82096-a5b2-378d-87c8-c3212879ec36 connection.interface-name usb0 connection.autoconnect true connection.permissions ""
+nanosub@nanosubJet:~$ sudo nmcli connection up d0f82096-a5b2-378d-87c8-c3212879ec36
+
+
+
+Fix camera driver issue:
+ 2010  sudo /etc/init.d/ueyeusbdrc force-stop
+ 2011  sudo /etc/init.d/ueyeusbdrc start

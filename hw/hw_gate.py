@@ -32,7 +32,8 @@ subs_socks.append(utils.subscribe([zmq_topics.topic_thrusters_comand],zmq_topics
 subs_socks.append(utils.subscribe([zmq_topics.topic_check_thrusters_comand],zmq_topics.topic_check_thrusters_comand_port))
 
 if not args.emulator:
-    ser = serial.Serial(detect_usb.devmap['ESC_USB'], 115200)
+    # ser = serial.Serial(detect_usb.devmap['ESC_USB'], 115200)
+    ser = serial.Serial('/dev/ttyUSB0', 115200)
 else:
     ser = serial.Serial('/dev/ttyUSB0', 115200)
 
@@ -239,7 +240,7 @@ def mainHwGate():
                 msgBuf = struct.pack(serialMotorsMsgPack, marker, OP_MOTORS, *motorsPwm)
                 ser.write(msgBuf)
                 ser.flush()
-                #print(time.time(), '---motors regular cmd to esp32 --->',motorsPwm)
+                print(time.time(), '---motors regular cmd to esp32 --->',motorsPwm)
                 
             if topic == zmq_topics.topic_check_thrusters_comand:
                 _, current_command = pickle.loads(ret[1])

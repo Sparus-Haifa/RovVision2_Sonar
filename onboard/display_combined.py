@@ -31,11 +31,19 @@ args = parser.parse_args()
 subs_socks = []
 subs_socks.append(zmq_wrapper.subscribe([zmq_topics.topic_stereo_camera], zmq_topics.topic_camera_port))
 subs_socks.append(zmq_wrapper.subscribe([zmq_topics.topic_sonar], zmq_topics.topic_sonar_port))
+subs_socks.append(zmq_wrapper.subscribe([zmq_topics.topic_system_state], zmq_topics.topic_controller_port))
+subs_socks.append(zmq_wrapper.subscribe([zmq_topics.topic_depth], zmq_topics.topic_depth_port))
+subs_socks.append(zmq_wrapper.subscribe([zmq_topics.topic_volt], zmq_topics.topic_volt_port))
 keep_running = True
 
 # Initialize image placeholders
 camera_img = None
 sonar_img = None
+recording = False
+disk_usage = 0
+current_depth = 0.0
+battery_voltage = 0.0
+battery_current = 0.0
 
 def resize_to_width(img, target_width):
     """Resize image to target width maintaining aspect ratio"""
@@ -44,8 +52,21 @@ def resize_to_width(img, target_width):
     target_height = int(h * ratio)
     return cv2.resize(img, (target_width, target_height))
 
+def draw_glowing_text(img, text, pos, color, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1.0, thickness=2):
+    """Draw text with a glowing effect"""
+    # Draw glow (larger black outline)
+    for offset in [(2,2), (-2,2), (2,-2), (-2,-2)]:
+        x = pos[0] + offset[0]
+        y = pos[1] + offset[1]
+        cv2.putText(img, text, (x, y), font, font_scale, (0,0,0), thickness+2)
+    
+    # Draw white outline for better contrast
+    cv2.putText(img, text, pos, font, font_scale, (255,255,255), thickness+1)
+    # Draw main text
+    cv2.putText(img, text, pos, font, font_scale, color, thickness)
+
 async def display_feeds():
-    global keep_running, camera_img, sonar_img
+    global keep_running, camera_img, sonar_img, recording, disk_usage, current_depth, battery_voltage, battery_current
     
     # Create window
     window_name = 'Combined Feed'
@@ -76,11 +97,56 @@ async def display_feeds():
                 elif ret[0] == zmq_topics.topic_sonar:
                     frame_cnt, shape, ts, camState, hasHighRes = pickle.loads(ret[1])
                     sonar_img = np.frombuffer(ret[-2], 'uint8').reshape((shape[0]//2, shape[1]//2, 3)).copy()
+                
+                # Process system state for recording status and disk usage
+                elif ret[0] == zmq_topics.topic_system_state:
+                    system_state = pickle.loads(ret[1])
+                    recording = system_state['record']
+                    disk_usage = system_state['diskUsage']
+                
+                # Process depth information
+                elif ret[0] == zmq_topics.topic_depth:
+                    depth_data = pickle.loads(ret[1])
+                    current_depth = depth_data['depth']
+                
+                # Process battery information
+                elif ret[0] == zmq_topics.topic_volt:
+                    volt_data = pickle.loads(ret[1])
+                    battery_voltage = volt_data['V']
+                    battery_current = volt_data['I']
             
             # Combine and display images if both are available
             if camera_img is not None and sonar_img is not None:
                 # Create black background
                 combined = np.zeros((args.height, args.width, 3), dtype=np.uint8)
+                
+                # Add status indicators
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 0.8
+                thickness = 2
+                line_height = 35  # Vertical spacing between lines
+                
+                # Recording status with glow effect
+                if recording:
+                    draw_glowing_text(combined, 'RECORD ON', (10, line_height), 
+                                    (0, 0, 255), font, font_scale, thickness)
+                else:
+                    draw_glowing_text(combined, 'RECORD OFF', (10, line_height), 
+                                    (128, 128, 128), font, font_scale, thickness)
+                
+                # Disk space (red if > 85%)
+                disk_color = (0, 0, 255) if disk_usage > 85 else (0, 255, 0)
+                draw_glowing_text(combined, f'DISK: {disk_usage}%', (250, line_height), 
+                                disk_color, font, font_scale, thickness)
+                
+                # Depth on second line
+                draw_glowing_text(combined, f'DEPTH: {current_depth:.1f}m', (10, line_height*2), 
+                                (255, 255, 255), font, font_scale, thickness)
+                
+                # Battery status on second line (red if voltage < 12.8V)
+                batt_color = (0, 0, 255) if battery_voltage < 12.8 else (0, 255, 0)
+                draw_glowing_text(combined, f'BATT: {battery_voltage:.1f}V {battery_current:.1f}A', 
+                                (250, line_height*2), batt_color, font, font_scale, thickness)
                 
                 # Resize camera image maintaining aspect ratio
                 cam_resized = resize_to_width(camera_img, args.width)
