@@ -38,7 +38,9 @@
 		"--device", "/dev/",
 		"--privileged=true",
 		// "--volume=/media/nir/4TBv21/rov_data/update4_test:/workspaces/RovVision2_Sonar/bags",
-		"--volume=/media/nir/4TBv21/rov_data/Nachsholim:/workspaces/RovVision2_Sonar/bags"
+		"--volume=/media/nir/4TBv21/rov_data/Nachsholim:/workspaces/RovVision2_Sonar/bags",
+		"--volume=/var/run/docker.sock:/var/run/docker.sock",
+		"--env=DIND_USER_HOME=${localWorkspaceFolder}"
 
 
 		// "--volume=/media/nir/4TBv21/rov_data/update4_eilat:/workspaces/RovVision2_Sonar/bags"
