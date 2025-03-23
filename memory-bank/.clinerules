@@ -1,0 +1,106 @@
+# Cline Rules for RovVision2_Sonar Project
+
+## Project Patterns
+
+### Code Organization
+- Gate modules (`*Gate.py`) handle acquisition, processing, and distribution of specific data types
+- Display modules (`display_*.py`) are responsible for visualization of different data streams
+- Controller modules manage PID control loops and autonomous behaviors
+- Utility modules provide shared functionality across the system
+
+### Naming Conventions
+- Python files use snake_case for general utilities
+- Class-based components use CamelCase
+- ZMQ topics follow topic_name format in zmq_topics.py
+- Configuration parameters use snake_case in config.py
+
+### Threading Model
+- Use asyncio for asynchronous operations where possible
+- Background threads for continuous processing operations
+- Main thread reserved for UI interactions in ground control
+
+### Communication Patterns
+- ZMQ for structured message passing between components
+- UDP for high-throughput data (video, sonar)
+- Pickle for object serialization across the network
+- Specific ports defined in config.py and zmq_topics.py
+
+## Critical Implementation Paths
+
+### Video Pipeline
+1. Camera capture in hardware-specific code
+2. Processing in imGate.py
+3. UDP transmission to ground control
+4. Reception and display in rovViewer.py
+
+### Sonar Pipeline
+1. Sonar data acquisition
+2. Processing in sonGate.py
+3. UDP transmission to ground control
+4. Reception and display in rovViewer.py
+
+### Control Pipeline
+1. Joystick/UI input in ground control
+2. Command transmission via ZMQ
+3. Reception in controller.py
+4. Processing in PID controllers
+5. Output to thrusters via mixer.py
+
+## Known Challenges
+
+### Bandwidth Management
+- Video compression must balance quality vs. bandwidth
+- Adaptive compression based on available bandwidth
+- Multiple data streams compete for limited bandwidth
+
+### Synchronization
+- Camera and sonar data should be synchronized for combined display
+- Telemetry data needs timestamps for accurate plotting
+- Control commands need to be executed in the correct sequence
+
+### Error Recovery
+- Network interruptions require graceful recovery
+- Sensor failures should not crash the system
+- Controller should fail safe if communication is lost
+
+## User Workflow Preferences
+
+### Development Process
+1. Implement new features in isolated modules first
+2. Test functionality standalone before integration
+3. Update configuration parameters in config.py
+4. Test integration with existing system
+
+### Deployment Process
+1. Build Docker containers with build.sh
+2. Deploy to ROV system
+3. Run initial connectivity tests
+4. Verify all subsystems operational
+
+## Tool Usage
+
+### Testing Tools
+- Manual testing through UI interaction
+- Visual verification of video/sonar feeds
+- Telemetry plotting for performance analysis
+- Data recording for post-mission analysis
+
+### Debugging Approaches
+- Print statements for basic debugging
+- ZMQ message inspection
+- Performance monitoring via telemetry
+- Data recording and playback for issue reproduction
+
+## Evolution Notes
+
+### Recent Design Changes
+- Added sonar integration alongside camera feeds
+- Developed local display capabilities on ROV
+- Enhanced compression techniques for bandwidth management
+- Implemented combined display of camera and sonar data
+
+### Planned Evolution
+- Refactor gate modules to reduce code duplication
+- Improve error handling and recovery mechanisms
+- Enhance UI for better usability
+- Develop advanced sonar analysis tools 
