@@ -16,6 +16,7 @@ The current development focus is on enhancing the sonar integration and display 
 - Implemented UDP transmission of compressed sonar images to ground control
 - Added sonar display capabilities to the ground control interface
 - Created specialized display components for viewing sonar data on the ROV itself
+- Fixed sonar power management by modifying `sysRun.sh` to explicitly send SIGINT to enable_sonar.py before tmux kill-ser
 
 ### Interface Improvements
 - Enhanced the `rovViewer.py` to support sonar image display alongside camera feeds
@@ -33,24 +34,22 @@ The current development focus is on enhancing the sonar integration and display 
 2. **UI Layout**: Determining the optimal way to present sonar data alongside camera feeds
 3. **Processing Distribution**: Deciding what processing happens onboard vs. at the ground station
 4. **Synchronization**: Ensuring proper synchronization between sonar and camera data
-5. **Sonar Power Management**: Deciding the best approach to ensure the sonar is properly powered off during system shutdown
+5. **Sonar Power Management**: Modified the system shutdown process to explicitly send SIGINT to sonar processes before hard kill
 
 ## Near-Term Tasks
 
-1. **Fix Sonar Power Management**: Implement proper signal handling in `enable_sonar.py` to ensure clean GPIO shutdown
-2. **Optimize Sonar Transmission**: Improve compression and transmission of sonar data
-3. **Enhance Display Layout**: Refine the combined display of camera and sonar feeds
-4. **Add Analysis Tools**: Implement tools for measuring and analyzing features in sonar data
-5. **Improve UI Controls**: Add more intuitive controls for sonar parameters
-6. **Test Bandwidth Usage**: Measure and optimize bandwidth consumption
+1. **Optimize Sonar Transmission**: Improve compression and transmission of sonar data
+2. **Enhance Display Layout**: Refine the combined display of camera and sonar feeds
+3. **Add Analysis Tools**: Implement tools for measuring and analyzing features in sonar data
+4. **Improve UI Controls**: Add more intuitive controls for sonar parameters
+5. **Test Bandwidth Usage**: Measure and optimize bandwidth consumption
 
 ## Known Issues
 
-1. **Sonar Power Management**: When system is stopped with `sysRun.sh kill`, the sonar remains powered on because cleanup code in `enable_sonar.py` isn't executed
-2. **Image Quality vs. Bandwidth**: Finding the right balance for sonar image compression
-3. **UI Responsiveness**: Ensuring UI remains responsive while handling multiple video streams
-4. **Synchronization Delays**: Addressing potential delays between camera and sonar data
-5. **Resource Usage**: Managing CPU and memory usage with additional data streams
+1. **Image Quality vs. Bandwidth**: Finding the right balance for sonar image compression
+2. **UI Responsiveness**: Ensuring UI remains responsive while handling multiple video streams
+3. **Synchronization Delays**: Addressing potential delays between camera and sonar data
+4. **Resource Usage**: Managing CPU and memory usage with additional data streams
 
 ## Technical Debt
 
@@ -58,7 +57,7 @@ The current development focus is on enhancing the sonar integration and display 
 2. **Configuration Management**: Too many hardcoded values that should be moved to configuration
 3. **Error Handling**: Improve robustness of network communication code
 4. **Documentation**: Need better inline documentation in sonar-related components
-5. **Signal Handling**: Proper handling of system signals for clean shutdown across the system
+5. **Signal Handling**: Proper handling of system signals for clean shutdown across the system - should be applied to all hardware management processes following the sonar power management pattern
 
 ## Next Major Milestones
 

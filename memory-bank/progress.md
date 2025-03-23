@@ -23,7 +23,7 @@
 - ✅ Simple display of sonar data in ground control
 - ✅ Compression adjustments for sonar images
 - ✅ Dedicated sonar display on ROV
-- ⚠️ Sonar power management during system shutdown (needs fix)
+- ✅ Sonar power management during system shutdown (fixed)
 
 ### Control Systems
 - ✅ PID controllers for depth, attitude, and position
@@ -44,7 +44,7 @@
 - 🔄 Combined camera/sonar display refinement
 - 🔄 Sonar image quality optimization
 - 🔄 Sonar data analysis tools
-- 🔄 Fixing sonar power management during system shutdown
+- ✅ Fixing sonar power management during system shutdown (completed)
 
 ### UI Improvements
 - 🔄 Enhanced layout for combined displays
@@ -78,12 +78,12 @@ The system is currently operational with basic camera and sonar capabilities. Co
 
 The ground control station can receive and display both camera and sonar feeds, and the onboard system can now show these feeds locally on the ROV as well.
 
-A critical issue has been identified with sonar power management: when the system is stopped with `sysRun.sh kill`, the sonar remains powered on because the cleanup code in `enable_sonar.py` isn't executed properly. This needs to be addressed to prevent potential sonar damage or battery drain.
+A critical issue with sonar power management has been fixed: The `sysRun.sh` script has been modified to explicitly send SIGINT to the sonar process before performing a hard kill with tmux. This ensures the sonar is properly powered off during system shutdown, even when terminated with `sysRun.sh kill`.
 
 ## Known Issues
 
 ### Sonar
-- Sonar power management during system shutdown (`enable_sonar.py` doesn't properly shut down GPIO when tmux is killed)
+- ~~Sonar power management during system shutdown (`enable_sonar.py` doesn't properly shut down GPIO when tmux is killed)~~ (Fixed)
 
 ### Performance
 - High CPU usage when running multiple video streams
@@ -99,7 +99,7 @@ A critical issue has been identified with sonar power management: when the syste
 - Network interruptions can cause system instability
 - Some error conditions not properly handled
 - Reconnection logic needs improvement
-- Process termination not always clean during system shutdown
+- Process termination requires explicit signal sending for hardware-related processes (implemented for sonar, should be extended to other hardware processes)
 
 ### Configuration
 - Too many hardcoded parameters throughout the codebase
@@ -108,10 +108,11 @@ A critical issue has been identified with sonar power management: when the syste
 
 ## Next Steps
 
-1. Fix sonar power management issue by adding proper signal handlers to `enable_sonar.py`
-2. Complete and optimize the sonar visualization components
-3. Improve error handling and system resilience
-4. Refactor common code between gate modules
-5. Enhance the UI layout for better usability
-6. Begin development of sonar data analysis tools
-7. Plan for field testing of the integrated system 
+1. ~~Fix sonar power management issue by adding proper signal handlers to `enable_sonar.py` and modifying `sysRun.sh` to send SIGINT before hard kill~~ (Completed)
+2. Apply the same explicit signal-sending pattern to other hardware management processes
+3. Complete and optimize the sonar visualization components
+4. Improve error handling and system resilience
+5. Refactor common code between gate modules
+6. Enhance the UI layout for better usability
+7. Begin development of sonar data analysis tools
+8. Plan for field testing of the integrated system 

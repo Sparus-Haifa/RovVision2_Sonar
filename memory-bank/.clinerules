@@ -29,7 +29,8 @@
 - System startup/shutdown controlled by `sysRun.sh`
 - Tmux used for managing multiple processes on both local and remote systems
 - Proper signal handling (SIGTERM, SIGINT, SIGHUP) required for clean process termination
-- Hardware management processes (like `enable_sonar.py`) must properly handle signals to ensure clean hardware state
+- Hardware management processes must have signal handlers for clean shutdown
+- `sysRun.sh kill` now explicitly sends SIGINT to critical hardware processes before tmux kill-ser
 
 ## Critical Implementation Paths
 
@@ -44,7 +45,7 @@
 2. Processing in sonGate.py
 3. UDP transmission to ground control
 4. Reception and display in rovViewer.py
-5. Sonar hardware power managed by `enable_sonar.py` via GPIO
+5. Sonar hardware power managed by `enable_sonar.py` via GPIO with proper signal handling
 
 ### Control Pipeline
 1. Joystick/UI input in ground control
@@ -57,7 +58,8 @@
 1. `sysRun.sh` starts/stops all system components
 2. Remote processes managed via SSH and tmux
 3. Hardware components initialized and cleaned up properly
-4. Signal handling required for clean shutdown
+4. Explicit signal sending required for hardware-related processes before tmux kill
+5. Hardware processes should still implement signal handlers as a redundant safety measure
 
 ## Known Challenges
 
@@ -79,7 +81,8 @@
 ### Process Termination
 - All processes must clean up properly when terminated
 - Hardware management processes need signal handlers for SIGTERM, SIGINT, and SIGHUP
-- Tmux kill sends SIGHUP to processes, which must be handled correctly
+- Tmux kill sends SIGHUP to processes, but this may not be reliably caught
+- `sysRun.sh kill` explicitly sends SIGINT to critical hardware processes before tmux kill-ser
 - GPIO pins and hardware state must be reset on process termination
 
 ## User Workflow Preferences
@@ -126,8 +129,9 @@
 - Implemented combined display of camera and sonar data
 
 ### Current Issues
-- Sonar power management during system shutdown: `enable_sonar.py` doesn't properly shut down GPIO when tmux is killed
-- Need to implement proper signal handling in Python processes that manage hardware
+- ~~Sonar power management during system shutdown: `enable_sonar.py` doesn't properly shut down GPIO when tmux is killed~~ (Fixed by explicitly sending SIGINT from sysRun.sh)
+- Need to implement the same explicit signal-sending pattern for all hardware management processes
+- Signal handlers should still be implemented in all hardware processes as a redundant safety measure
 
 ### Planned Evolution
 - Refactor gate modules to reduce code duplication
