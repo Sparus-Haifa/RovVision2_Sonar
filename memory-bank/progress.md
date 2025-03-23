@@ -23,6 +23,7 @@
 - ✅ Simple display of sonar data in ground control
 - ✅ Compression adjustments for sonar images
 - ✅ Dedicated sonar display on ROV
+- ⚠️ Sonar power management during system shutdown (needs fix)
 
 ### Control Systems
 - ✅ PID controllers for depth, attitude, and position
@@ -43,6 +44,7 @@
 - 🔄 Combined camera/sonar display refinement
 - 🔄 Sonar image quality optimization
 - 🔄 Sonar data analysis tools
+- 🔄 Fixing sonar power management during system shutdown
 
 ### UI Improvements
 - 🔄 Enhanced layout for combined displays
@@ -53,6 +55,7 @@
 - 🔄 Improved synchronization between data streams
 - 🔄 Resource usage optimization
 - 🔄 Error handling and recovery mechanisms
+- 🔄 Signal handling for clean process termination
 
 ## Not Started
 
@@ -75,7 +78,12 @@ The system is currently operational with basic camera and sonar capabilities. Co
 
 The ground control station can receive and display both camera and sonar feeds, and the onboard system can now show these feeds locally on the ROV as well.
 
+A critical issue has been identified with sonar power management: when the system is stopped with `sysRun.sh kill`, the sonar remains powered on because the cleanup code in `enable_sonar.py` isn't executed properly. This needs to be addressed to prevent potential sonar damage or battery drain.
+
 ## Known Issues
+
+### Sonar
+- Sonar power management during system shutdown (`enable_sonar.py` doesn't properly shut down GPIO when tmux is killed)
 
 ### Performance
 - High CPU usage when running multiple video streams
@@ -91,6 +99,7 @@ The ground control station can receive and display both camera and sonar feeds, 
 - Network interruptions can cause system instability
 - Some error conditions not properly handled
 - Reconnection logic needs improvement
+- Process termination not always clean during system shutdown
 
 ### Configuration
 - Too many hardcoded parameters throughout the codebase
@@ -99,9 +108,10 @@ The ground control station can receive and display both camera and sonar feeds, 
 
 ## Next Steps
 
-1. Complete and optimize the sonar visualization components
-2. Improve error handling and system resilience
-3. Refactor common code between gate modules
-4. Enhance the UI layout for better usability
-5. Begin development of sonar data analysis tools
-6. Plan for field testing of the integrated system 
+1. Fix sonar power management issue by adding proper signal handlers to `enable_sonar.py`
+2. Complete and optimize the sonar visualization components
+3. Improve error handling and system resilience
+4. Refactor common code between gate modules
+5. Enhance the UI layout for better usability
+6. Begin development of sonar data analysis tools
+7. Plan for field testing of the integrated system 

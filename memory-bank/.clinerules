@@ -25,6 +25,12 @@
 - Pickle for object serialization across the network
 - Specific ports defined in config.py and zmq_topics.py
 
+### Process Management
+- System startup/shutdown controlled by `sysRun.sh`
+- Tmux used for managing multiple processes on both local and remote systems
+- Proper signal handling (SIGTERM, SIGINT, SIGHUP) required for clean process termination
+- Hardware management processes (like `enable_sonar.py`) must properly handle signals to ensure clean hardware state
+
 ## Critical Implementation Paths
 
 ### Video Pipeline
@@ -38,6 +44,7 @@
 2. Processing in sonGate.py
 3. UDP transmission to ground control
 4. Reception and display in rovViewer.py
+5. Sonar hardware power managed by `enable_sonar.py` via GPIO
 
 ### Control Pipeline
 1. Joystick/UI input in ground control
@@ -45,6 +52,12 @@
 3. Reception in controller.py
 4. Processing in PID controllers
 5. Output to thrusters via mixer.py
+
+### System Startup/Shutdown
+1. `sysRun.sh` starts/stops all system components
+2. Remote processes managed via SSH and tmux
+3. Hardware components initialized and cleaned up properly
+4. Signal handling required for clean shutdown
 
 ## Known Challenges
 
@@ -63,6 +76,12 @@
 - Sensor failures should not crash the system
 - Controller should fail safe if communication is lost
 
+### Process Termination
+- All processes must clean up properly when terminated
+- Hardware management processes need signal handlers for SIGTERM, SIGINT, and SIGHUP
+- Tmux kill sends SIGHUP to processes, which must be handled correctly
+- GPIO pins and hardware state must be reset on process termination
+
 ## User Workflow Preferences
 
 ### Development Process
@@ -77,6 +96,12 @@
 3. Run initial connectivity tests
 4. Verify all subsystems operational
 
+### System Operation
+1. Start system with `./sysRun.sh`
+2. Stop system with `./sysRun.sh kill`
+3. Hardware states must be properly managed during both startup and shutdown
+4. Monitor system status through telemetry and logs
+
 ## Tool Usage
 
 ### Testing Tools
@@ -90,6 +115,7 @@
 - ZMQ message inspection
 - Performance monitoring via telemetry
 - Data recording and playback for issue reproduction
+- Hardware state verification (e.g., GPIO pin status)
 
 ## Evolution Notes
 
@@ -99,8 +125,13 @@
 - Enhanced compression techniques for bandwidth management
 - Implemented combined display of camera and sonar data
 
+### Current Issues
+- Sonar power management during system shutdown: `enable_sonar.py` doesn't properly shut down GPIO when tmux is killed
+- Need to implement proper signal handling in Python processes that manage hardware
+
 ### Planned Evolution
 - Refactor gate modules to reduce code duplication
 - Improve error handling and recovery mechanisms
 - Enhance UI for better usability
-- Develop advanced sonar analysis tools 
+- Develop advanced sonar analysis tools
+- Implement robust signal handling for clean system shutdown 
