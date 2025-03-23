@@ -7,6 +7,7 @@
 - Display modules (`display_*.py`) are responsible for visualization of different data streams
 - Controller modules manage PID control loops and autonomous behaviors
 - Utility modules provide shared functionality across the system
+- Direct access modules bypass the distributed architecture for specific use cases
 
 ### Naming Conventions
 - Python files use snake_case for general utilities
@@ -24,6 +25,7 @@
 - UDP for high-throughput data (video, sonar)
 - Pickle for object serialization across the network
 - Specific ports defined in config.py and zmq_topics.py
+- Direct access to hardware when bypassing the distributed architecture
 
 ### Process Management
 - System startup/shutdown controlled by `sysRun.sh`
@@ -32,6 +34,11 @@
 - Hardware management processes must have signal handlers for clean shutdown
 - `sysRun.sh kill` now explicitly sends SIGINT to critical hardware processes before tmux kill-ser
 
+### Display Options
+- ZMQ-based distributed display for normal operation
+- Direct hardware access display for simplified testing and maximum performance
+- Both approaches follow similar visual styling for consistency
+
 ## Critical Implementation Paths
 
 ### Video Pipeline
@@ -39,6 +46,12 @@
 2. Processing in imGate.py
 3. UDP transmission to ground control
 4. Reception and display in rovViewer.py
+
+### Direct Display Pipeline
+1. Camera capture directly from IDS uEye camera
+2. Immediate processing and display without network transmission
+3. On-screen display of camera information
+4. Interactive controls for camera parameters
 
 ### Sonar Pipeline
 1. Sonar data acquisition
@@ -68,6 +81,12 @@
 - Adaptive compression based on available bandwidth
 - Multiple data streams compete for limited bandwidth
 
+### Camera Performance Optimization
+- Resolution affects maximum achievable frame rate (2048x2048 limits to ~10 FPS)
+- Reducing resolution to 1024x1024 improves frame rate
+- Pixelclock setting affects frame rate and should be maximized for best performance
+- Binning can be used to improve frame rate when full resolution isn't required
+
 ### Synchronization
 - Camera and sonar data should be synchronized for combined display
 - Telemetry data needs timestamps for accurate plotting
@@ -93,6 +112,11 @@
 3. Update configuration parameters in config.py
 4. Test integration with existing system
 
+### Display Options
+1. Use distributed ZMQ-based display (`display_combined.py`) for normal operation
+2. Use direct display (`display_direct.py`) for camera testing and performance optimization
+3. Run direct display with reduced resolution (1024x1024) for higher frame rates
+
 ### Deployment Process
 1. Build Docker containers with build.sh
 2. Deploy to ROV system
@@ -112,6 +136,7 @@
 - Visual verification of video/sonar feeds
 - Telemetry plotting for performance analysis
 - Data recording for post-mission analysis
+- Direct hardware access for performance testing
 
 ### Debugging Approaches
 - Print statements for basic debugging
@@ -119,6 +144,7 @@
 - Performance monitoring via telemetry
 - Data recording and playback for issue reproduction
 - Hardware state verification (e.g., GPIO pin status)
+- FPS monitoring in direct display for performance optimization
 
 ## Evolution Notes
 
@@ -127,15 +153,20 @@
 - Developed local display capabilities on ROV
 - Enhanced compression techniques for bandwidth management
 - Implemented combined display of camera and sonar data
+- Created direct camera access display for performance optimization
+- Reduced camera resolution to improve frame rate
 
 ### Current Issues
 - ~~Sonar power management during system shutdown: `enable_sonar.py` doesn't properly shut down GPIO when tmux is killed~~ (Fixed by explicitly sending SIGINT from sysRun.sh)
 - Need to implement the same explicit signal-sending pattern for all hardware management processes
 - Signal handlers should still be implemented in all hardware processes as a redundant safety measure
+- Camera frame rate limited to ~10 FPS at full resolution (2048x2048)
+- Need to explore further camera optimization techniques (pixelclock, binning)
 
 ### Planned Evolution
 - Refactor gate modules to reduce code duplication
 - Improve error handling and recovery mechanisms
 - Enhance UI for better usability
 - Develop advanced sonar analysis tools
-- Implement robust signal handling for clean system shutdown 
+- Implement robust signal handling for clean system shutdown
+- Optimize camera performance for maximum frame rate 

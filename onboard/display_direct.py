@@ -34,9 +34,6 @@ keep_running = True
 fps_counter = 0
 fps_timer = time.time()
 current_fps = 0
-current_depth = 0.0  # Placeholder without actual sensor
-battery_voltage = 12.9  # Placeholder without actual sensor
-battery_current = 0.5  # Placeholder without actual sensor
 
 def resize_to_width(img, target_width):
     """Resize image to target width maintaining aspect ratio"""
@@ -67,8 +64,8 @@ def init_camera():
     # Set camera mode to RAW8 (same as in camIds.py)
     cam.set_colormode(ueye.IS_CM_SENSOR_RAW8)
     
-    # Set camera resolution (using the same as in camIds.py)
-    ret = cam.set_aoi(0, 0, 2048, 2048)
+    # Set camera resolution to 1024x1024 (reduced from 2048x2048)
+    ret = cam.set_aoi(0, 0, 1024, 1024)
     cam.alloc()
     
     # Set frame rate
@@ -171,16 +168,6 @@ def display_camera():
                 draw_glowing_text(display_img, exp_text, 
                                  (250, line_height), 
                                  (0, 255, 0), font, font_scale, thickness)
-                
-                # Display depth on second line (placeholder)
-                draw_glowing_text(display_img, f'DEPTH: {current_depth:.1f}m', 
-                                 (10, line_height*2), 
-                                 (255, 255, 255), font, font_scale, thickness)
-                
-                # Display battery status on second line (placeholder)
-                batt_color = (0, 0, 255) if battery_voltage < 12.8 else (0, 255, 0)
-                draw_glowing_text(display_img, f'BATT: {battery_voltage:.1f}V {battery_current:.1f}A', 
-                                 (250, line_height*2), batt_color, font, font_scale, thickness)
                 
                 # Display frame
                 cv2.imshow(window_name, display_img)
