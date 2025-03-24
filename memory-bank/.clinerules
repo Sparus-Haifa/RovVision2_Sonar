@@ -39,7 +39,24 @@
 - Direct hardware access display for simplified testing and maximum performance
 - Both approaches follow similar visual styling for consistency
 
+### Device Detection
+- Multiple detection strategies should be used for reliability
+- Product name is the most reliable method for device identification
+- USB path matching serves as a good fallback
+- Device number can be used as a last resort heuristic
+- Always include detailed debug output for troubleshooting
+- Design for backward compatibility with older Python versions
+- Pickle-based storage of device mappings in /tmp/devusbmap.pkl
+
 ## Critical Implementation Paths
+
+### USB Device Detection
+1. Run `detect_usb.py` to identify USB devices
+2. Detect available ttyUSB devices using glob.glob()
+3. For each device, gather product and path information using udevadm
+4. Map devices based on product name, USB path, or device number
+5. Store device mapping in /tmp/devusbmap.pkl
+6. Import the mapping in other modules that need device access
 
 ### Video Pipeline
 1. Camera capture in hardware-specific code

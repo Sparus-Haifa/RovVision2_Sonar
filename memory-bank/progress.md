@@ -8,6 +8,7 @@
 - ✅ Basic telemetry and sensor data transmission
 - ✅ Joystick integration for manual control
 - ✅ Docker containerization for deployment
+- ✅ USB device detection and mapping for ROV type 4
 
 ### Video System
 - ✅ Camera feed acquisition and compression
@@ -84,6 +85,8 @@
 The system is currently operational with basic camera and sonar capabilities. Core functionality for ROV control, telemetry, and visualization is working. Recent development has focused on sonar integration and display components, with several new modules added (`sonGate.py`, `display_sonar.py`, `display_combined.py`).
 
 A new addition is `display_direct.py`, which provides direct camera access and display without using the ZMQ messaging framework. This alternative approach offers a simpler display pipeline focused on maximizing camera frame rate by reducing resolution from 2048x2048 to 1024x1024. The script includes interactive controls for adjusting exposure and toggling auto-exposure, with on-screen display of current FPS and exposure values.
+
+The USB device detection system has been improved with a robust implementation in `detect_usb.py` that reliably identifies and maps USB devices for ROV type 4, specifically the Vectornav (RS232) and ESP32 (TTL232R) devices. The script uses multiple detection methods with fallbacks for maximum reliability.
 
 The ground control station can receive and display both camera and sonar feeds, and the onboard system can now show these feeds locally on the ROV as well.
 

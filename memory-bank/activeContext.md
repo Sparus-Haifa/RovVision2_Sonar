@@ -9,8 +9,18 @@ The current development focus is on enhancing the sonar integration and display 
 3. **Combined Display**: Creating a unified display that shows both camera feeds and sonar data
 4. **Sonar Power Management**: Addressing issues with sonar power shutdown during system termination
 5. **Direct Camera Display**: Creating a direct camera access display option that bypasses ZMQ framework
+6. **USB Device Detection**: Improving USB device detection and mapping for ROV type 4
 
 ## Recent Changes
+
+### USB Device Detection
+- Fixed `detect_usb.py` script to reliably detect and map USB devices on ROV type 4
+- Implemented multi-layered device identification:
+  - Primary method: Using product names ("USB-RS232 Cable" for Vectornav, "TTL232R" for ESP32)
+  - Fallback methods: USB path matching and device number heuristics
+- Added detailed debug output to show how devices are detected and mapped
+- Created a robust approach that works even with older Python versions
+- Ensured script handles edge cases gracefully (missing devices, parsing errors)
 
 ### Direct Camera Access
 - Created `display_direct.py` for accessing and displaying camera feed directly without ZMQ

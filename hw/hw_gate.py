@@ -32,8 +32,8 @@ subs_socks.append(utils.subscribe([zmq_topics.topic_thrusters_comand],zmq_topics
 subs_socks.append(utils.subscribe([zmq_topics.topic_check_thrusters_comand],zmq_topics.topic_check_thrusters_comand_port))
 
 if not args.emulator:
-    # ser = serial.Serial(detect_usb.devmap['ESC_USB'], 115200)
-    ser = serial.Serial('/dev/ttyUSB0', 115200)
+    ser = serial.Serial(detect_usb.devmap['ESC_USB'], 115200)
+    # ser = serial.Serial('/dev/ttyUSB0', 115200)
 else:
     ser = serial.Serial('/dev/ttyUSB0', 115200)
 
